@@ -22,9 +22,7 @@ export function VideoTable({ videos, setSelectedVideo }) {
             <td className="p-3">{video.crowdCount}</td>
             <td
               className={`p-3 ${
-                video.status === "Needs Attention" 
-                ? "text-red-500" 
-                : "text-green-500"
+                video.status === "Needs Attention" ? "text-red-500" : "text-green-500"
               } font-semibold`}
             >
               {video.status}
