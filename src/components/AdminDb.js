@@ -12,15 +12,18 @@ export default function AdminDb() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [videos, setVideos] = useState([]);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleVideoUpload = async (videoFile, location) => {
     if (videoFile && location) {
+      setIsProcessing(true); // Start animation
       try {
         const response = await processVideo(videoFile);
         if (response && response.count !== undefined) {
           const newVideo = {
             name: videoFile.name,
-            url: URL.createObjectURL(videoFile),
+            // Use processed video URL from API response
+            url: `http://localhost:5000${response.processed_video_url}`,
             location,
             crowdCount: response.count,
             status: response.count > 20 ? "Needs Attention" : "Normal",
@@ -30,10 +33,12 @@ export default function AdminDb() {
         }
       } catch (error) {
         console.error("Failed to process video", error);
+      } finally {
+        setIsProcessing(false); // Stop animation
       }
     }
   };
-
+  
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-500 to-blue-300 p-6">
       <Navbar setIsCongestionTracker={setIsCongestionTracker} />
@@ -64,15 +69,32 @@ export default function AdminDb() {
         />
       )}
       {selectedVideo && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-10 rounded-lg shadow-lg max-w-4xl w-full">
-            <video src={selectedVideo} controls className="w-full h-auto" />
-            <button
-              className="mt-4 w-full bg-red-500 text-white py-2 rounded-lg"
-              onClick={() => setSelectedVideo(null)}
-            >
-              Close
-            </button>
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="bg-white p-10 rounded-lg shadow-lg max-w-4xl w-full">
+      <video 
+        src={selectedVideo} 
+        controls 
+        className="w-full h-auto"
+        crossOrigin="anonymous"  
+        preload="metadata"
+      >
+        <source src={selectedVideo} type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      <button
+        className="mt-4 w-full bg-red-500 text-white py-2 rounded-lg"
+        onClick={() => setSelectedVideo(null)}
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
+ {isProcessing && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="flex flex-col items-center">
+            <div className="loader"></div>
+            <p className="mt-4 text-white text-lg">Processing Video...</p>
           </div>
         </div>
       )}
