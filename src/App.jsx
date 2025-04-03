@@ -1,5 +1,5 @@
 import './App.css';
-import AdminDb from './Component/AdminDb';
+import AdminDb from './components/AdminDb';
 
 function App() {
   return (
